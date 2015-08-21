@@ -58,9 +58,13 @@ check_root()
 
 make_shared_secret()
 {
-    #urandom is theoretically not as secure as random, but we're not doing
-    #on-line banking here.
-    head -c 42 /dev/urandom | base64
+    #urandom is theoretically not as secure as openssl, but we're not doing
+    #on-line banking here so allow the fallback.
+    if openssl version >/dev/null 2>&1 ; then
+	openssl rand -base64 42
+    else
+	head -c 42 /dev/urandom | base64
+    fi
 }
 
 # A shared secret that the agents use to prove to the database they are legit.
