@@ -18,6 +18,7 @@ from pyramid.renderers import render_to_response
 
 import requests
 from http import cookies
+from datetime import datetime
 
 
 ##############################################################################
@@ -213,12 +214,14 @@ def test_configure(request):
     boosted = "Unboosted"
     boostremaining = "N/A"
     deboost_credit = 0
+    deboost_time = 0
     if request.params.get('boost'):
         ram = "100"
         cores = "8"
         boosted = "Boosted"
         boostremaining = "10 hrs, 12 min"
         deboost_credit = 30
+        deboost_time = int(datetime.now().strftime("%s")) + ((10 * 60) + 12) * 60;
 
     return dict(   logged_in    = 'nobody',
                    values       = [ { "artifact_name": "dummy" } ],
@@ -233,7 +236,8 @@ def test_configure(request):
                        create_dt     = "2015-05-18 18:38",
                        boosted       = boosted,
                        artifact_id   = 123,
-                       deboost_credit= deboost_credit
+                       deboost_time  = deboost_time,
+                       deboost_credit= deboost_credit,
                                   ),
                    touches      = [],
                    credit       = 500,
