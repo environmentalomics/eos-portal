@@ -124,6 +124,8 @@ def vw_configure(request):
     server_name = request.matchdict['name']
     db_endpoint = request.registry.settings.get('db_endpoint_x')
 
+    boost_levels = api_get('boostlevels', request)
+
     #Currently we get a 500 error if the server name is invalid.
     #This seems reasonable.
 
@@ -132,6 +134,7 @@ def vw_configure(request):
                    server       = server_data(server_name, request),
                    touches      = server_touches(server_name, request),
                    credit       = account['credits'],
+                   boost_levels = boost_levels,
                    token        = request.session['auth_tkt'],
                    db_endpoint  = db_endpoint)
 
@@ -220,6 +223,13 @@ def test_configure(request):
         boostremaining = "10 hrs, 12 min"
         deboost_credit = 30
 
+    #Boost levels copied from the eos_db defaults in settings.example.py
+    bl_baseline = dict( label='Standard', ram=16, cores=1 )
+
+    bl_levels = ( dict( label='Standard+', ram=40,  cores=2,  cost=1  ),
+                  dict( label='Large',     ram=140, cores=8,  cost=3  ),
+                  dict( label='Max',       ram=400, cores=16, cost=12 ))
+
     return dict(   logged_in    = 'nobody',
                    values       = [ { "artifact_name": "dummy" } ],
                    server       = dict(
@@ -238,4 +248,5 @@ def test_configure(request):
                    touches      = [],
                    credit       = 500,
                    token        = 'none',
+                   boost_levels = dict(baseline=bl_baseline, levels=bl_levels, capacity=()),
                    db_endpoint  = 'none://')
