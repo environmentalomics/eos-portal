@@ -212,15 +212,15 @@ def test_configure(request):
     """Provides dummy values to the configure page so I can test it out without
        starting the eos-db server.
     """
-    ram = '40'
+    ram = 40
     cores = 1
     boosted = "Unboosted"
     boostremaining = "N/A"
     deboost_credit = 0
     deboost_time = 0
     if request.params.get('boost'):
-        ram = "100"
-        cores = "8"
+        ram = 100
+        cores = 8
         boosted = "Boosted"
         boostremaining = "10 hrs, 12 min"
         deboost_credit = 30
@@ -230,7 +230,7 @@ def test_configure(request):
     bl_baseline = dict( label='Standard', ram=16, cores=1 )
 
     bl_levels = ( dict( label='Standard+', ram=40,  cores=2,  cost=1  ),
-                  dict( label='Large',     ram=140, cores=8,  cost=3  ),
+                  dict( label='Large',     ram=100, cores=8,  cost=3  ),
                   dict( label='Max',       ram=400, cores=16, cost=12 ))
 
     return dict(   logged_in    = 'nobody',
@@ -241,7 +241,7 @@ def test_configure(request):
                        state         = "Started",
                        boostremaining= boostremaining,
                        change_dt     = "2015-05-20 17:32",
-                       ram           = "%s GB" % ram,
+                       ram           = ram,
                        cores         = cores,
                        create_dt     = "2015-05-18 18:38",
                        boosted       = boosted,
