@@ -212,7 +212,7 @@
                available in your account.</p>
         </div>
         <hr>
-        <form>
+	<form class="suppress-enter-key">
           <div class="form-group">
             <h4 id="boosttype">Boost Type - Unspecified</h4>
 	    <input type="range"  min="1" max="${len(boost_levels.levels)}" id="slidetype"/>
@@ -234,11 +234,20 @@
         </form>
         <hr>
 
+        <span id="boost_cost_ok" style="display: inline;">
         <div class="alert alert-success" role="alert">
 	    <p>You currently have <b><span class="credit">${credit}</span></b> credits.</p>
             <p>This boost will cost <span id="boostcost">0</span> credits, leaving <span id="boostremain">0</span>
                for future use.</p>
          </div>
+     </span>
+        <span id="boost_cost_bad" style="display: inline;">
+        <div class="alert alert-danger" role="alert">
+	    <p>This boost level is currently unavailable due to high system load from other users.</p>
+            <p>Please select a lower level or try again later.</p>
+         </div>
+     </span>
+
           <div class="modal-footer">
             <button class="btn btn-success btn-boost" type="button"
                     server="${server['artifact_id']}">Confirm Boost</button>
@@ -392,9 +401,9 @@
       // Schedule a deboost.  Most if the logic for this is now in eos_db
       $('.btn-boost').click(function() {
 
-        //FIXME - should just pass the Boost level to the backend, surely?
-        var cores = boost_levels[$("input#slidetype").val()[1]];
-        var ram   = boost_levels[$("input#slidetype").val()[2]];
+        //FIXME - should just pass the Boost level number to the backend, surely?
+        var cores = boost_levels[$("input#slidetype").val()][1];
+        var ram   = boost_levels[$("input#slidetype").val()][2];
 
         var hours = $('input#textduration').val()
 
@@ -449,9 +458,11 @@
 	boost_levels.push( [ ${repr(lev['label'])},
                              ${repr(lev['cores'])},
                              ${repr(lev['ram'])},
-                             ${repr(lev['cost'])}   ] );
+                             ${repr(lev['cost'])},
+                             ${repr(lev['available'])}   ] );
     </script>
     <script>
+	// Things get a bit tricky when the level of boost is changed
 	function slidetype_change(){
 	    bl = boost_levels[$("input#slidetype").val()];
 	    $("h4#boosttype").text("Boost Type - " + bl[0] + " ("
@@ -459,15 +470,29 @@
 						   + bl[2] + "GB RAM) @ "
 						   + bl[3] + " credit/hr" );
 
+	    if(bl[4] == 0){
+                    $('#boost_cost_ok').css({ display: 'none' });
+                    $('#boost_cost_bad').css({ display: 'inline' });
+		    $('.btn-boost').prop('disabled', true);
+	    }
+	    else
+	    {
+                    $('#boost_cost_ok').css({ display: 'inline' });
+                    $('#boost_cost_bad').css({ display: 'none' });
+		    $('.btn-boost').prop('disabled', false);
+	    }
+
+
             update_calcs();
 	}
 
         $('#slidetype').change(slidetype_change);
 
         //Or the duration...
-        //Apparently this won't fire if I move it from the code.
+        //Apparently this won't fire if I move the slider from the code.
         $('#slideduration').change(function() {
-            update_calcs();
+	    update_with_new_hours(exp_curve_transform($(this).val(),
+		                                      Math.floor($(this).attr("max"))) );
         });
 
         //Or sets duration directly...
@@ -492,6 +517,7 @@
 	credit = ${credit};
 
 	//On first load, set the slider to look sensible
+        //and suppress form submission via the enter key
          $(document).ready(function() {
 	    $("input#slidetype").val("1")
 	    $("input#slideduration").val("1")
@@ -499,6 +525,12 @@
 	    $("input#slideextend").val("1")
             update_extend_cost();
 	    update_deboost_credit();
+
+	    $("form.suppress-enter-key").bind("keypress", function(e) {
+		if (e.keyCode == 13) {
+		    e.preventDefault();
+		}
+	    });
         });
 
 
@@ -535,17 +567,15 @@
         }
 
         // Works out the duration and cost of boost based on the two sliders.
-        // Called when a slider is moved.
+        // Called when the level slider is moved or on a general refresh.
         function update_calcs() {
             //Simple calculation of max time = credit / rate used to set slider limits
             //on change of boost type.
             var availabletime = calculate_available_time($("input#slidetype").val());
             $("input#slideduration").attr("max", availabletime);
 
-            //Convert to hours - we can't boost for fractional hours, so round it
-            //and force the slider to the integer location.
-            //console.log("slider moved to " + $('#slideduration').val() + " of " + $("input#slideduration").attr("max"));
-            update_with_new_hours(exp_curve_transform($('#slideduration').val(), availabletime))
+	    //If possible, keep the same number of hours if the boost level changes
+            update_with_new_hours($('input#textduration').val())
         }
 
         // We want a non-linear slider so as to allow us to set low numbers accurately
