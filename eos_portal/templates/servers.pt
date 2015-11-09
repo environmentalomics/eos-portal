@@ -19,7 +19,7 @@
         <td class="create_dt">${value['create_dt']}</td>
         <td class="state">${value['state']}</td>
         <td class="boosted">${value['boosted']}</td>
-        <td class="ram">${value['ram']}</td>
+        <td class="ram">${value['ram']} GB</td>
         <td class="cores">${value['cores']}</td>
         <td class="change_dt">${value['change_dt']}</td>
         <td>
@@ -129,7 +129,7 @@
                             $('#throbber-'+datum['artifact_id']).css({ opacity: 0 });
                         }
 
-                        /* Now set other table rows to new values */
+                        /* Now set other table rows that might change to new values */
                         var boosted = data[i]['boosted'];
                         tablerow.children('td.boosted').text(boosted);
                         var change_dt = data[i]['change_dt'];

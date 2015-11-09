@@ -214,11 +214,11 @@
         <hr>
 	<form class="suppress-enter-key">
           <div class="form-group">
-            <h4 id="boosttype">Boost Type - Unspecified</h4>
+	      <h4>Boost Type - <span id="boosttype" style="font-weight: bold;">Unspecified</span></h4>
 	    <input type="range"  min="1" max="${len(boost_levels.levels)}" id="slidetype"/>
           </div>
           <div class="form-group">
-            <h4>Duration</h4>
+	      <h4>Duration - <span id="timesummary" style="font-weight: bold;">0 days, 0 hours</span></h4>
             <div class="col-md-8" style="padding-left:0px;padding-right:0px;">
                 <input type="range"  min="0" max="100" id="slideduration">
             </div>
@@ -227,7 +227,6 @@
                        style="width: 100px; height: 20px; font-size: 10px">
                 &nbsp; hrs
             </div>
-            <div class="col-md-12" id="timesummary" style="font-size: 10px; font-style: italic;">Time Here</div>
           </div>
         <p><br/><br/><i>This boost action will be automatically ended at <span id="endtime">00:00 on 00/00/0000</span>.
             Please note that the machine will be restarted at this time in order to make the change.</i></p>
@@ -281,14 +280,13 @@
         <hr>
         <form>
           <div class="form-group">
-            <h4>Extend for how long?</h4>
+	      <h4>Extend for duration - <span id="extendtimesummary" style="font-weight: bold;">0 days, 0 hours</span></h4>
             <div class="col-md-8" style="padding-left:0px;padding-right:0px;">
                 <input type="range"  min="0" max="100" id="slideextend">
             </div>
             <div class="col-md-4">
                 <input type="number" size="4" maxlength="4" id="textextend"
                        style="width: 100px; height: 20px; font-size: 10px">&nbsp; hrs</div>
-            <div class="col-md-12" id="extendtimesummary" style="font-size: 10px; font-style: italic;">&nbsp;</div>
           </div>
         <p><br/><br/><i>Your server is currently due to deboost on <span id="deboostdt">00:00 on 00/00/0000</span>. 
                With the additional duration, this boost action will be automatically ended at 
@@ -465,10 +463,10 @@
 	// Things get a bit tricky when the level of boost is changed
 	function slidetype_change(){
 	    bl = boost_levels[$("input#slidetype").val()];
-	    $("h4#boosttype").text("Boost Type - " + bl[0] + " ("
-		                                   + bl[1] + " Cores, "
-						   + bl[2] + "GB RAM) @ "
-						   + bl[3] + " credit/hr" );
+	    $("span#boosttype").text("" + bl[0] + " ("
+		                        + bl[1] + " Cores, "
+				        + bl[2] + "GB RAM) @ "
+				        + bl[3] + " credit/hr" );
 
 	    if(bl[4] == 0){
                     $('#boost_cost_ok').css({ display: 'none' });
@@ -556,7 +554,7 @@
             var hours = duration % 24;
             var days =  Math.floor(duration / 24);
             //console.log(days + " days, " + hours + " hours.");
-            $('#timesummary').text(days + " days, " + hours + " hours.");
+            $('#timesummary').text(days + " days, " + hours + " hours");
 
             //Calculate the cost.
 	    //Multiplier can be found from boost_levels[n][3]
@@ -656,7 +654,7 @@
             var hours = duration % 24;
             var days =  Math.floor(duration / 24);
             //console.log(days + " days, " + hours + " hours.");
-            $('#extendtimesummary').text(days + " days, " + hours + " hours.");
+            $('#extendtimesummary').text(days + " days, " + hours + " hours");
 
 	    //Calculate the cost
             var credits_used = duration * current_boost_cost;
