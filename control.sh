@@ -161,6 +161,7 @@ dstart()
     # Fire up the agent herder.
     # I've not built in daemon functionality to it
     # yet so just use start-stop-daemon with the -b option
+    sudo -u $AGENT_USER touch "${AGENT_WORKING_DIR}/agents.log"
 
     start-stop-daemon -CbS -mp ${AGENT_WORKING_DIR}/controller.pid -u $AGENT_USER -c $AGENT_USER \
 	-x "$PY3VENV"/bin/python -- "$WD/eos-agents/eos_agents/controller.py" \
